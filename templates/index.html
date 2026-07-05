@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AEROVANE — Fare Intelligence for Indian Skies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0c0f0d;
+    --ink-2:#12160f;
+    --paper:#f3f0e6;
+    --paper-dim:#c9c3ad;
+    --brass:#c9a24b;
+    --brass-dim:#8a7137;
+    --line:rgba(243,240,230,0.14);
+    --line-strong:rgba(243,240,230,0.28);
+    --glass:rgba(18,22,15,0.55);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--paper);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{ background:var(--brass); color:var(--ink); }
+  h1,h2,h3{ font-family:'Fraunces', serif; font-weight:400; letter-spacing:-0.01em; }
+  a{ color:inherit; text-decoration:none; }
+  .eyebrow{
+    font-size:11px; letter-spacing:0.22em; text-transform:uppercase;
+    color:var(--brass); font-weight:600;
+  }
+  .wrap{ max-width:1320px; margin:0 auto; padding:0 48px; }
+  @media (max-width:900px){ .wrap{ padding:0 24px; } }
+
+  /* ---------- NAV ---------- */
+  header{
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    padding:26px 0;
+    transition:background .4s ease, padding .4s ease, border-color .4s ease;
+    border-bottom:1px solid transparent;
+  }
+  header.scrolled{
+    background:rgba(12,15,13,0.86);
+    backdrop-filter:blur(14px);
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+  }
+  nav{ display:flex; align-items:center; justify-content:space-between; }
+  .logo{
+    font-family:'Fraunces', serif; font-size:22px; letter-spacing:0.06em;
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo svg{ width:20px; height:20px; }
+  .navlinks{ display:flex; gap:40px; align-items:center; }
+  .navlinks a{
+    font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--paper-dim);
+    transition:color .25s ease; position:relative;
+  }
+  .navlinks a:hover{ color:var(--paper); }
+  .nav-cta{
+    border:1px solid var(--line-strong); padding:10px 22px; border-radius:2px;
+    font-size:11px; letter-spacing:0.14em; text-transform:uppercase;
+    transition:all .25s ease;
+  }
+  .nav-cta:hover{ background:var(--brass); border-color:var(--brass); color:var(--ink); }
+  @media (max-width:980px){ .navlinks{ display:none; } }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; min-height:100vh; display:flex; align-items:flex-end;
+    padding:160px 0 90px;
+    background:
+      linear-gradient(180deg, rgba(8,10,8,0.55) 0%, rgba(8,10,8,0.35) 30%, rgba(6,8,6,0.75) 78%, rgba(4,5,4,0.95) 100%),
+      url('https://images.unsplash.com/photo-1763455892848-39bbc7ca90a0?fm=jpg&q=80&w=2600&auto=format&fit=crop') center 62% / cover no-repeat;
+  }
+  .hero-grid{
+    display:grid; grid-template-columns:1.15fr 0.85fr; gap:64px; align-items:end; width:100%;
+  }
+  @media (max-width:1080px){ .hero-grid{ grid-template-columns:1fr; } }
+  .hero-copy .eyebrow{ margin-bottom:22px; display:block; }
+  .hero h1{
+    font-size:clamp(40px, 5.4vw, 74px); line-height:1.03; font-weight:400; color:var(--paper);
+    max-width:12ch;
+  }
+  .hero p{
+    margin-top:26px; max-width:46ch; color:var(--paper-dim); font-size:15.5px; line-height:1.7;
+    font-weight:300;
+  }
+  .hero-actions{ display:flex; gap:18px; margin-top:38px; flex-wrap:wrap; }
+  .btn-solid{
+    background:var(--brass); color:var(--ink); padding:16px 30px; font-size:12px;
+    letter-spacing:0.12em; text-transform:uppercase; font-weight:600; border-radius:2px;
+    transition:transform .25s ease, box-shadow .25s ease;
+  }
+  .btn-solid:hover{ transform:translateY(-2px); box-shadow:0 10px 30px rgba(201,162,75,0.28); }
+  .btn-ghost{
+    border:1px solid var(--line-strong); color:var(--paper); padding:16px 26px; font-size:12px;
+    letter-spacing:0.12em; text-transform:uppercase; display:flex; align-items:center; gap:8px;
+    transition:border-color .25s ease, background .25s ease;
+  }
+  .btn-ghost:hover{ border-color:var(--brass); background:rgba(201,162,75,0.08); }
+
+  /* ---------- PREDICTOR CARD ---------- */
+  .predict-card{
+    background:var(--glass);
+    backdrop-filter:blur(22px);
+    border:1px solid var(--line-strong);
+    border-radius:4px;
+    padding:30px 30px 26px;
+    box-shadow:0 40px 90px rgba(0,0,0,0.55);
+  }
+  .predict-card .eyebrow{ display:flex; align-items:center; justify-content:space-between; }
+  .predict-card .eyebrow span:last-child{ color:var(--paper-dim); font-weight:500; letter-spacing:0.1em; }
+  .predict-card h3{
+    font-size:24px; color:var(--paper); margin-top:8px; margin-bottom:20px; font-weight:400;
+  }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+  .field{ display:flex; flex-direction:column; gap:6px; }
+  .field label{
+    font-size:10px; letter-spacing:0.12em; text-transform:uppercase; color:var(--paper-dim);
+  }
+  .field select, .field input[type=range]{
+    width:100%;
+  }
+  select{
+    appearance:none; -webkit-appearance:none;
+    background:rgba(243,240,230,0.05);
+    border:1px solid var(--line); color:var(--paper);
+    padding:11px 12px; font-size:13px; font-family:'Inter',sans-serif;
+    border-radius:2px; cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6'><path d='M0 0l5 6 5-6z' fill='%23c9a24b'/></svg>");
+    background-repeat:no-repeat; background-position:right 12px center;
+    transition:border-color .2s ease;
+  }
+  select:hover, select:focus{ border-color:var(--brass); outline:none; }
+  select option{ background:#14170f; color:var(--paper); }
+
+  .slider-field{ margin-bottom:14px; }
+  .slider-field .slabel{
+    display:flex; justify-content:space-between; font-size:10px; letter-spacing:0.1em;
+    text-transform:uppercase; color:var(--paper-dim); margin-bottom:8px;
+  }
+  .slider-field .slabel b{ color:var(--brass); font-weight:600; letter-spacing:0; text-transform:none; font-size:12px; }
+  input[type=range]{
+    -webkit-appearance:none; height:2px; background:var(--line-strong); border-radius:2px; outline:none;
+  }
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px; border-radius:50%;
+    background:var(--brass); cursor:pointer; border:2px solid var(--ink);
+    box-shadow:0 0 0 1px var(--brass);
+  }
+
+  .predict-btn{
+    width:100%; margin-top:8px; background:var(--brass); color:var(--ink);
+    border:none; padding:15px; font-size:12px; letter-spacing:0.14em; text-transform:uppercase;
+    font-weight:700; border-radius:2px; cursor:pointer; transition:filter .2s ease, transform .2s ease;
+    font-family:'Inter',sans-serif;
+  }
+  .predict-btn:hover{ filter:brightness(1.08); transform:translateY(-1px); }
+
+  .result-box{
+    margin-top:18px; padding:18px 20px; border:1px solid var(--line-strong);
+    border-left:2px solid var(--brass);
+    background:rgba(201,162,75,0.06);
+    border-radius:2px;
+    display:none;
+  }
+  .result-box.show{ display:block; animation:reveal .5s ease; }
+  @keyframes reveal{ from{ opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+  .result-box .rlabel{ font-size:10px; letter-spacing:0.14em; text-transform:uppercase; color:var(--paper-dim); }
+  .result-box .ramount{ font-family:'Fraunces', serif; font-size:38px; color:var(--paper); margin-top:6px; }
+  .result-box .ramount span{ font-size:18px; color:var(--brass); vertical-align:middle; margin-right:4px; }
+  .result-box .rrange{ font-size:11.5px; color:var(--paper-dim); margin-top:6px; }
+
+  /* ---------- STRIP ---------- */
+  .stat-strip{
+    border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:34px 0;
+  }
+  .stat-strip .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:24px; }
+  .stat{ text-align:left; }
+  .stat .num{ font-family:'Fraunces', serif; font-size:34px; color:var(--paper); }
+  .stat .lbl{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--paper-dim); margin-top:4px; }
+
+  /* ---------- SERVICES / AIRLINES ---------- */
+  .services{
+    position:relative; padding:150px 0 120px;
+    background:
+      linear-gradient(180deg, rgba(6,8,6,0.5) 0%, rgba(6,8,6,0.82) 55%, rgba(6,8,6,0.97) 100%),
+      url('https://images.unsplash.com/photo-1759430710977-a557a49897ff?fm=jpg&q=80&w=2400&auto=format&fit=crop') center / cover no-repeat;
+  }
+  .services-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:40px; margin-bottom:70px; flex-wrap:wrap; position:relative; }
+  .services-head h2{ font-size:clamp(34px,4.4vw,56px); color:var(--paper); max-width:11ch; margin-top:10px; }
+  .services-head p{ max-width:38ch; color:var(--paper-dim); font-size:14.5px; line-height:1.7; font-weight:300; }
+  .badge-ring{
+    position:absolute; right:0; top:-30px; width:118px; height:118px;
+    opacity:0.85;
+  }
+  .badge-ring text{
+    font-size:8.6px; letter-spacing:2.5px; fill:var(--paper-dim); font-family:'Inter',sans-serif;
+  }
+  .badge-ring .core{ fill:none; stroke:var(--line-strong); stroke-width:1; }
+
+  .airline-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); border-top:1px solid var(--line); border-left:1px solid var(--line);
+  }
+  @media (max-width:900px){ .airline-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:600px){ .airline-grid{ grid-template-columns:1fr; } }
+  .airline-card{
+    border-right:1px solid var(--line); border-bottom:1px solid var(--line);
+    padding:34px 30px; min-height:220px; display:flex; flex-direction:column; justify-content:space-between;
+    transition:background .3s ease;
+    position:relative;
+  }
+  .airline-card:hover{ background:rgba(201,162,75,0.05); }
+  .airline-card .idx{ font-size:11px; color:var(--brass); letter-spacing:0.1em; font-weight:600; }
+  .airline-card h4{ font-family:'Fraunces', serif; font-size:22px; font-weight:400; color:var(--paper); margin:14px 0 8px; }
+  .airline-card .desc{ font-size:13px; color:var(--paper-dim); line-height:1.6; font-weight:300; }
+  .airline-card .mini-stats{ display:flex; gap:18px; margin-top:16px; }
+  .airline-card .mini-stats div{ font-size:11px; color:var(--paper-dim); }
+  .airline-card .mini-stats b{ display:block; color:var(--paper); font-family:'Fraunces', serif; font-size:16px; font-weight:400; }
+
+  /* ---------- HOW IT WORKS ---------- */
+  .how{ padding:130px 0; }
+  .how-grid{ display:grid; grid-template-columns:0.8fr 1.2fr; gap:70px; }
+  @media (max-width:900px){ .how-grid{ grid-template-columns:1fr; gap:40px; } }
+  .how h2{ font-size:clamp(30px,3.6vw,44px); max-width:9ch; }
+  .how-steps{ display:flex; flex-direction:column; }
+  .how-step{ display:grid; grid-template-columns:70px 1fr; gap:22px; padding:26px 0; border-top:1px solid var(--line); }
+  .how-step:last-child{ border-bottom:1px solid var(--line); }
+  .how-step .n{ font-family:'Fraunces', serif; font-size:26px; color:var(--brass-dim); }
+  .how-step h5{ font-family:'Fraunces', serif; font-weight:400; font-size:19px; color:var(--paper); margin-bottom:6px; }
+  .how-step p{ font-size:13.5px; color:var(--paper-dim); line-height:1.65; font-weight:300; max-width:56ch; }
+
+  /* ---------- FOOTER ---------- */
+  footer{ border-top:1px solid var(--line); padding:60px 0 34px; }
+  .foot-grid{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:40px; margin-bottom:46px; }
+  .foot-brand{ max-width:280px; }
+  .foot-brand .logo{ margin-bottom:14px; }
+  .foot-brand p{ font-size:13px; color:var(--paper-dim); line-height:1.6; font-weight:300; }
+  .foot-col h6{ font-size:11px; letter-spacing:0.12em; text-transform:uppercase; color:var(--paper-dim); margin-bottom:14px; }
+  .foot-col a{ display:block; font-size:13.5px; color:var(--paper); opacity:0.85; margin-bottom:10px; }
+  .foot-col a:hover{ color:var(--brass); }
+  .foot-bottom{
+    display:flex; justify-content:space-between; padding-top:26px; border-top:1px solid var(--line);
+    font-size:11.5px; color:var(--paper-dim); flex-wrap:wrap; gap:10px;
+  }
+</style>
+</head>
+<body>
+
+<header id="siteHeader">
+  <div class="wrap">
+    <nav>
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L13.5 9L21 12L13.5 15L12 22L10.5 15L3 12L10.5 9L12 2Z" fill="#c9a24b"/></svg>
+        AEROVANE
+      </div>
+      <div class="navlinks">
+        <a href="#predict">Predict Fare</a>
+        <a href="#airlines">Airlines</a>
+        <a href="#how">How It Works</a>
+        <a href="#contact">Contact</a>
+      </div>
+      <a href="#predict" class="nav-cta">Get a Fare</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow">Fare Intelligence · Trained on 300,153 Indian Flights</span>
+      <h1>Where the Sky Meets Certainty</h1>
+      <p>AEROVANE reads years of fare patterns across six cities and six carriers to tell you, before you book, what a route is really worth — down to the class, the stop, and the day you choose to fly.</p>
+      <div class="hero-actions">
+        <a href="#predict" class="btn-solid">Predict Your Fare</a>
+        <a href="#airlines" class="btn-ghost">Explore Airlines →</a>
+      </div>
+    </div>
+
+    <div class="predict-card" id="predict">
+      <div class="eyebrow"><span>Fare Predictor</span><span id="modelTag">R² 0.91 model</span></div>
+      <h3>What will you pay?</h3>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Airline</label>
+          <select id="airline">
+            <option value="Vistara">Vistara</option>
+            <option value="Air_India">Air India</option>
+            <option value="Indigo">Indigo</option>
+            <option value="GO_FIRST">GO FIRST</option>
+            <option value="AirAsia">AirAsia</option>
+            <option value="SpiceJet">SpiceJet</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Class</label>
+          <select id="class">
+            <option value="Economy">Economy</option>
+            <option value="Business">Business</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>From</label>
+          <select id="source_city">
+            <option>Delhi</option><option>Mumbai</option><option>Bangalore</option>
+            <option>Kolkata</option><option>Hyderabad</option><option>Chennai</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>To</label>
+          <select id="destination_city">
+            <option>Mumbai</option><option>Delhi</option><option>Bangalore</option>
+            <option>Kolkata</option><option>Hyderabad</option><option>Chennai</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Departure</label>
+          <select id="departure_time">
+            <option>Morning</option><option>Early_Morning</option><option>Afternoon</option>
+            <option>Evening</option><option>Night</option><option>Late_Night</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Arrival</label>
+          <select id="arrival_time">
+            <option>Night</option><option>Morning</option><option>Early_Morning</option>
+            <option>Afternoon</option><option>Evening</option><option>Late_Night</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field" style="grid-column:1 / -1;">
+          <label>Stops</label>
+          <select id="stops">
+            <option value="zero">Non-stop</option>
+            <option value="one">1 Stop</option>
+            <option value="two_or_more">2+ Stops</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="slider-field">
+        <div class="slabel"><span>Flight Duration</span><b id="durVal">12.0 hrs</b></div>
+        <input type="range" id="duration" min="1" max="30" step="0.25" value="12">
+      </div>
+      <div class="slider-field">
+        <div class="slabel"><span>Days Before Departure</span><b id="daysVal">26 days</b></div>
+        <input type="range" id="days_left" min="1" max="49" step="1" value="26">
+      </div>
+
+      <button class="predict-btn" onclick="predictFare()">Predict Fare</button>
+
+      <div class="result-box" id="resultBox">
+        <div class="rlabel">Estimated Fare</div>
+        <div class="ramount"><span>₹</span><span id="fareOut">0</span></div>
+        <div class="rrange" id="fareRange"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stat-strip">
+  <div class="wrap">
+    <div class="stat"><div class="num">300,153</div><div class="lbl">Flights Analyzed</div></div>
+    <div class="stat"><div class="num">6</div><div class="lbl">Cities Connected</div></div>
+    <div class="stat"><div class="num">6</div><div class="lbl">Airline Partners</div></div>
+    <div class="stat"><div class="num">91%</div><div class="lbl">Prediction Accuracy (R²)</div></div>
+    <div class="stat"><div class="num">₹1.1K–1.2L</div><div class="lbl">Fare Range Covered</div></div>
+  </div>
+</div>
+
+<section class="services" id="airlines">
+  <div class="wrap">
+    <div class="services-head">
+      <div>
+        <span class="eyebrow">Who We Track</span>
+        <h2>Airline Partners</h2>
+      </div>
+      <p>Every fare model AEROVANE builds is trained on real ticket data from six major Indian carriers, spanning economy to business, non-stop to multi-leg. Here's how each one shapes the numbers.</p>
+      <svg class="badge-ring" viewBox="0 0 120 120">
+        <circle class="core" cx="60" cy="60" r="52"/>
+        <path id="ringPath" d="M 60,60 m -42,0 a 42,42 0 1,1 84,0 a 42,42 0 1,1 -84,0" fill="none"/>
+        <text><textPath href="#ringPath">AEROVANE · FARE INTELLIGENCE · EST. 2026 · </textPath></text>
+      </svg>
+    </div>
+
+    <div class="airline-grid">
+      <div class="airline-card">
+        <div><span class="idx">01</span>
+        <h4>Vistara</h4>
+        <p class="desc">The largest carrier in this dataset, spanning full-service economy and business cabins with the widest fare range of any airline tracked.</p></div>
+        <div class="mini-stats"><div><b>42.6%</b>Market Share</div><div><b>₹30.4K</b>Avg Fare</div></div>
+      </div>
+      <div class="airline-card">
+        <div><span class="idx">02</span>
+        <h4>Air India</h4>
+        <p class="desc">India's flag carrier, second-largest in volume, with a strong presence on long-haul domestic and one-stop connections.</p></div>
+        <div class="mini-stats"><div><b>27.0%</b>Market Share</div><div><b>₹23.5K</b>Avg Fare</div></div>
+      </div>
+      <div class="airline-card">
+        <div><span class="idx">03</span>
+        <h4>Indigo</h4>
+        <p class="desc">The value benchmark of the group — high frequency, mostly non-stop, and consistently the tightest fares in economy.</p></div>
+        <div class="mini-stats"><div><b>14.4%</b>Market Share</div><div><b>₹5.3K</b>Avg Fare</div></div>
+      </div>
+      <div class="airline-card">
+        <div><span class="idx">04</span>
+        <h4>GO FIRST</h4>
+        <p class="desc">A lean, low-cost operator with fares that track closely to Indigo, favoring shorter regional hops between metro pairs.</p></div>
+        <div class="mini-stats"><div><b>7.7%</b>Market Share</div><div><b>₹5.7K</b>Avg Fare</div></div>
+      </div>
+      <div class="airline-card">
+        <div><span class="idx">05</span>
+        <h4>AirAsia</h4>
+        <p class="desc">The most budget-forward carrier in the set, with the lowest average fare across every route it flies.</p></div>
+        <div class="mini-stats"><div><b>5.4%</b>Market Share</div><div><b>₹4.1K</b>Avg Fare</div></div>
+      </div>
+      <div class="airline-card">
+        <div><span class="idx">06</span>
+        <h4>SpiceJet</h4>
+        <p class="desc">A smaller footprint carrier with fares slightly above the budget tier, often filling gaps on less-traveled departure windows.</p></div>
+        <div class="mini-stats"><div><b>3.0%</b>Market Share</div><div><b>₹6.2K</b>Avg Fare</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap how-grid">
+    <div>
+      <span class="eyebrow">The Method</span>
+      <h2 style="margin-top:10px;">How the fare is built</h2>
+    </div>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="n">01</div>
+        <div><h5>Learn from 300K real fares</h5><p>A regression model was trained on airline, route, timing, stop count, cabin class, flight duration, and days-to-departure across the full dataset.</p></div>
+      </div>
+      <div class="how-step">
+        <div class="n">02</div>
+        <div><h5>Weigh what actually moves price</h5><p>Cabin class and number of stops carry the heaviest influence; departure window and route pairing shift the number further.</p></div>
+      </div>
+      <div class="how-step">
+        <div class="n">03</div>
+        <div><h5>Return a fare, not a guess</h5><p>Your selections are run through the same weights live in your browser — no server round-trip, no waiting.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer id="contact">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="foot-brand">
+        <div class="logo">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L13.5 9L21 12L13.5 15L12 22L10.5 15L3 12L10.5 9L12 2Z" fill="#c9a24b"/></svg>
+          AEROVANE
+        </div>
+        <p>Fare intelligence for Indian domestic travel, built on real ticketing data across six cities and six carriers.</p>
+      </div>
+      <div class="foot-col">
+        <h6>Navigate</h6>
+        <a href="#predict">Predict Fare</a>
+        <a href="#airlines">Airlines</a>
+        <a href="#how">How It Works</a>
+      </div>
+      <div class="foot-col">
+        <h6>Coverage</h6>
+        <a href="#">Delhi · Mumbai</a>
+        <a href="#">Bangalore · Chennai</a>
+        <a href="#">Kolkata · Hyderabad</a>
+      </div>
+      <div class="foot-col">
+        <h6>Contact</h6>
+        <a href="mailto:hello@aerovane.example">hello@aerovane.example</a>
+        <a href="#">Support Desk</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 AEROVANE. Fares are model estimates, not live ticket prices.</span>
+      <span>Trained on 300,153 flight records</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // header scroll state
+  const header = document.getElementById('siteHeader');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 40);
+  });
+
+  // slider live labels
+  const dur = document.getElementById('duration');
+  const days = document.getElementById('days_left');
+  document.getElementById('durVal').textContent = parseFloat(dur.value).toFixed(1) + ' hrs';
+  document.getElementById('daysVal').textContent = days.value + ' days';
+  dur.addEventListener('input', () => document.getElementById('durVal').textContent = parseFloat(dur.value).toFixed(1) + ' hrs');
+  days.addEventListener('input', () => document.getElementById('daysVal').textContent = days.value + ' days');
+
+  // ---- Linear regression coefficients trained on Clean_Dataset.csv (R2 = 0.911) ----
+  const MODEL = {
+    intercept: 30595.014535359605,
+    duration_coef: 42.573075342984126,
+    days_left_coef: -130.9517253540542,
+    categories: {
+      airline: {SpiceJet:578.3590329103058, AirAsia:-1715.8325550081004, Vistara:2355.6762945948035, GO_FIRST:-10.129929223799008, Indigo:391.34575665634134, Air_India:-1599.4185999295878},
+      source_city: {Delhi:-1109.1365257245307, Mumbai:84.88571463937808, Bangalore:296.76478833281936, Kolkata:1880.47057531284, Hyderabad:-1382.2675666727332, Chennai:229.2830141122192},
+      departure_time: {Evening:-67.92433459923684, Early_Morning:33.949241897547445, Morning:54.582655585004886, Afternoon:-801.7357451083719, Night:-111.59897587177585, Late_Night:892.7271580968297},
+      stops: {zero:-5758.948424668061, one:1826.8053735476146, two_or_more:3932.1430511204435},
+      arrival_time: {Night:688.4041036360385, Morning:22.419202000628704, Early_Morning:-1226.1768016295828, Afternoon:-454.19939868165295, Evening:470.4977120157889, Late_Night:499.0551826587885},
+      destination_city: {Mumbai:328.85244147281526, Bangalore:357.6191950053366, Kolkata:1734.40503256894, Hyderabad:-1362.4427351493184, Chennai:137.79635616063146, Delhi:-1196.2302900584111},
+      class: {Economy:-22461.272355745165, Business:22461.27235574516}
+    }
+  };
+
+  function localFallback(inputs){
+    let price = MODEL.intercept;
+    price += MODEL.categories.airline[inputs.airline] || 0;
+    price += MODEL.categories.source_city[inputs.source_city] || 0;
+    price += MODEL.categories.destination_city[inputs.destination_city] || 0;
+    price += MODEL.categories.departure_time[inputs.departure_time] || 0;
+    price += MODEL.categories.arrival_time[inputs.arrival_time] || 0;
+    price += MODEL.categories.stops[inputs.stops] || 0;
+    price += MODEL.categories.class[inputs.class] || 0;
+    price += MODEL.duration_coef * inputs.duration;
+    price += MODEL.days_left_coef * inputs.days_left;
+    price = Math.max(price, 1100);
+    return { price: Math.round(price), low: Math.round(price*0.88), high: Math.round(price*1.12) };
+  }
+
+  function renderResult(res, airline, cls){
+    document.getElementById('fareOut').textContent = res.price.toLocaleString('en-IN');
+    document.getElementById('fareRange').textContent = 'Typical range ₹' + res.low.toLocaleString('en-IN') + ' – ₹' + res.high.toLocaleString('en-IN') + ' · ' + airline.replace('_',' ') + ' · ' + cls;
+    document.getElementById('resultBox').classList.add('show');
+    document.getElementById('resultBox').scrollIntoView({behavior:'smooth', block:'nearest'});
+  }
+
+  async function predictFare(){
+    const airline = document.getElementById('airline').value;
+    const cls = document.getElementById('class').value;
+    const src = document.getElementById('source_city').value;
+    const dst = document.getElementById('destination_city').value;
+    const dep = document.getElementById('departure_time').value;
+    const arr = document.getElementById('arrival_time').value;
+    const stops = document.getElementById('stops').value;
+    const duration = parseFloat(document.getElementById('duration').value);
+    const daysLeft = parseFloat(document.getElementById('days_left').value);
+
+    if(src === dst){
+      alert("Origin and destination can't be the same city — pick two different cities.");
+      return;
+    }
+
+    const inputs = {
+      airline, class: cls, source_city: src, destination_city: dst,
+      departure_time: dep, arrival_time: arr, stops,
+      duration, days_left: daysLeft
+    };
+
+    try{
+      const resp = await fetch('/predict', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(inputs)
+      });
+      if(resp.ok){
+        const data = await resp.json();
+        if(data.success){
+          renderResult(data, airline, cls);
+          return;
+        }
+      }
+      throw new Error('backend not ok');
+    } catch(err){
+      renderResult(localFallback(inputs), airline, cls);
+    }
+  }
+</script>
+
+</body>
+</html>
