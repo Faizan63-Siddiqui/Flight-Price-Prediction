@@ -125,39 +125,11 @@ pip install -r requirements.txt
 python app.py
 ```
 
-Open **http://127.0.0.1:5000** in your browser.
+
 
 ---
 
 
-## 📌 API
-
-**POST** `/predict`
-
-Request body:
-```json
-{
-  "airline": "Vistara",
-  "source_city": "Delhi",
-  "destination_city": "Mumbai",
-  "departure_time": "Morning",
-  "arrival_time": "Evening",
-  "stops": "zero",
-  "class": "Economy",
-  "duration": 12.5,
-  "days_left": 20
-}
-```
-
-Response:
-```json
-{
-  "success": true,
-  "price": 5230,
-  "low": 4600,
-  "high": 5860
-}
-```
 
 ---
 
